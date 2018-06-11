@@ -14,7 +14,7 @@ $(document).ready(function () {
 //Fonction permettant de générer un tableau
 function etatInitial(tab) {
     let count = 1;
-    for (let j = 0; j <= 3; j++) {
+    for (let j = 0; j < Object.keys(tab).length; j++) {
         $(".tableauBody").append("<tr id='" + j + "'></tr>>");
         for (let i = 0; i < tab[j].length; i++) {
             $("#" + j).append('<td id="td' + count + '">' + tab[j][i] + '</td>');
