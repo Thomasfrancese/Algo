@@ -7,6 +7,7 @@ let tab = {
 
 $(document).ready(function () {
     $(".initialiser").click(function() {
+        deleteTable();
         etatInitial(tab);
     })
 })
@@ -21,4 +22,8 @@ function etatInitial(tab) {
             count++;
         }
     }
+}
+// Fonction pour suprime le tableau
+function deleteTable(){
+    $("tr").remove();
 }
