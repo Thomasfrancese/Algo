@@ -1,8 +1,9 @@
+
 let tab = {
-    0: ['V', 1, 3, 4],
+    0: [1, 2, 3, 4],
     1: [5, 6, 7, 8],
     2: [9, 10, 11, 12],
-    3: [13, 14, 15, 2]
+    3: [13, 14, 15, "V"]
 };
 
 let board = [
@@ -31,59 +32,40 @@ let pariteCaseVide;
 $(document).ready(function () {
     //Lorsque l'on click sur le bouton initialiser
     $(".initialiser").click(function () {
+        //Afficher le plateau de jeu
         deleteTable();
-        etatInitial(tab);
-        resultatJoueur = makeTableResult(tab);
+        etatInitial(board);
+        //Récupérer sous forme de tableau unique le plateau de jeu initial
+        resultatJoueur = makeTableResult(board);
+        //Définir si le plateau de jeu initial est soluble ou pas
         solubleOrNot(resultatJoueur);
     })
 
     $(".tableauBody").click(function () {
-        resultatJoueur = makeTableResult(tab);
+        //Récupérer sous forme de tableau unique le plateau de jeu en cours dès qu'on clique sur le jeu
+        resultatJoueur = makeTableResult(board);
+        //Lorsque le joueur joue, vérifier s'il a gagné
+        isAWinner(resultatJoueur);
     })
-
-    testMarion(board);
 
 })
 
-//Fonction permettant de générer un tableau
-function etatInitial(tab) {
-    let count = 1;
-    //Déterminer la parité de la case vide
-    let parite;
-    for (let j = 0; j < Object.keys(tab).length; j++) {
-        $(".tableauBody").append("<tr id='ligne" + j + "'></tr>>");
-        for (let i = 0; i < tab[j].length; i++) {
-            //Déterminer la parité de la case vide lorsqu'elle est sur cette case (si le modulo de la somme des coordonnées x,y de la case divisé par 2 = 0 alors case paire)
-            if ((j + i) == 0){
-                parite = "Pair";
-            }
-            else if ((j + i) % 2 == 0) {
-                parite = "Pair";
-            }
-            else {
-                parite = "Impair"
-            }
-            $("#ligne" + j).append('<td id="' + count + '" class="' + parite + '">' + tab[j][i] + '</td>');
-            count++;
-        }
-    }
-}
 
 //Fonction permettant de générer un tableau
-function testMarion(tab) {
+function etatInitial(tab) {
     //Déterminer la parité de la case vide
     let parite;
     for (let j = 0; j < Object.keys(tab).length; j++) {
-        if (j == 0 || j == 4 || j==8 || j==12) {
+        if (j == 0 || j == 4 || j == 8 || j == 12) {
             $(".tableauBody").append("<tr id='ligne" + tab[j].x + "'></tr>>");
         }
         //Déterminer la parité de la case vide lorsqu'elle est sur cette case
         if ((tab[j].x + tab[j].y) % 2 == 0) {
             parite = "Pair";
-        }else {
+        } else {
             parite = "Impair";
         }
-        $("#ligne" + tab[j].x).append('<td id="' + tab[j].id + '" class="'+ parite +'">' + tab[j].value + '</td>');
+        $("#ligne" + tab[j].x).append('<td id="' + tab[j].id + '" class="' + parite + '">' + tab[j].value + '</td>');
     }
 }
 
@@ -95,10 +77,8 @@ function deleteTable() {
 //Fonction pour transformer l'objet en un tableau unique
 function makeTableResult(tab) {
     let resultat = [];
-    for (let j = 0; j < Object.keys(tab).length; j++) {
-        for (let i = 0; i < tab[j].length; i++) {
-            resultat.push(tab[j][i]);
-        }
+    for (let j = 0; j < tab.length; j++) {
+            resultat.push(tab[j].value);
     }
     return resultat;
 }
@@ -107,8 +87,14 @@ function makeTableResult(tab) {
 function getPariteCaseVide(tableauResultat) {
     //trouver l'index dans le tableau de la case vide
     let indexV = tableauResultat.indexOf("V");
-    //retourner la classe de la case vide qui correspond à sa parité
-    let pariteCaseVide = $("#" + (indexV + 1)).attr('class');
+    //parité
+    let pariteCaseVide = "Pair";
+    //Si la case vide n'est pas à la fin du tableau, déterminer sa parité
+    if (indexV != (tableauResultat.length - 1)) {
+        console.log("l'index de v dans getparitecasevide : " + indexV);
+        //retourner la classe de la case vide qui correspond à sa parité
+        pariteCaseVide = $("#" + (indexV + 1)).attr('class');
+    }
     return pariteCaseVide;
 }
 
@@ -136,7 +122,9 @@ function getPariteTransposition(tableauResultat) {
     //Boucler sur le tableau
     for (let i = (tableauResultat.length - 1); i >= 0; i--) {
         //Trouver le plus petit nombre du tableau
-        let max = Math.max(...tableauResultat);
+        let max = Math.max(...tableauResultat
+    )
+        ;
         //Trouver l'index du maximum
         let indexMax = tableauResultat.indexOf(max);
         //Récupérer dans une variable la case courante
@@ -176,3 +164,46 @@ function solubleOrNot(tableauResultat) {
     console.log("soluble : " + soluble);
     return soluble;
 }
+
+
+// Fonction qui compare si le resultat proposé est égal au resultat attendu
+function isAWinner(resultatDuJoueur) {
+    console.log(resultatDuJoueur);
+
+    var foundEmptyCaseID = resultatDuJoueur.indexOf('V');
+
+    if (foundEmptyCaseID == resultatDuJoueur.length - 1) {
+        resultatDuJoueur.pop();
+        console.log('"V" is the last element of the table');
+    } else {
+        console.log('"V" is not the last element of the table');
+    }
+
+
+////// Si le tableau est en ordre croissant, décroissant ou non rangé 
+
+    var isDescending = true;
+    var isAscending = true;
+
+    for (var i = 0, l = resultatDuJoueur.length - 1; i < l; i++) {
+
+        // Vrai si le premier index est plus grand que index+1
+        isDescending = isDescending && (resultatDuJoueur[i] > resultatDuJoueur[i + 1]);
+
+        // Vrai si le premier index est plus petit que index+1
+        isAscending = isAscending && (resultatDuJoueur[i] < resultatDuJoueur[i + 1]);
+
+    }
+
+    if (isAscending) {
+        console.log('Partie gagnée');
+    }
+    else if (isDescending) {
+        console.log('Continuer');
+    }
+    else {
+        console.log('Continuer');
+    }
+
+}
+
