@@ -1,11 +1,42 @@
+body{
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    align-content: center;
+    vertical-align: center;
+}
+
 .taquin{
+    width: 70%;
+    margin: auto;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    align-content: center;
+    vertical-align: center;
+}
+
+
+
+.res {
+    font-size: 2.5em;
+    border: 1px double black;
+    height: 100px;
+    background-color: burlywood;
+    vertical-align: center;
+    padding-top: 20px;
+}
+
+.row{
+    display: flex;
+    flex-wrap: wrap;
+    width: 400px;
+    align-content: center;
+    vertical-align: center;
     align-items: center;
     text-align: center;
 }
-td{
-    width: 20px;
-}
 
-tbody{
-    width: 80px;
+.vide{
+    background-color: red;
 }

@@ -1,11 +1,4 @@
-
-let tab = {
-    0: [1, 2, 3, 4],
-    1: [5, 6, 7, 8],
-    2: [9, 10, 11, 12],
-    3: [13, 14, 15, "V"]
-};
-
+//Plateau de jeu
 let board = [
     {x: 0, y: 0, value: 1, id: 1},
     {x: 0, y: 1, value: 2, id: 2},
@@ -16,15 +9,14 @@ let board = [
     {x: 1, y: 2, value: 7, id: 7},
     {x: 1, y: 3, value: 8, id: 8},
     {x: 2, y: 0, value: 9, id: 9},
-    {x: 2, y: 1, value: 10, id: 10},
+    {x: 2, y: 1, value: "V", id: 10},
     {x: 2, y: 2, value: 11, id: 11},
     {x: 2, y: 3, value: 12, id: 12},
     {x: 3, y: 0, value: 13, id: 13},
     {x: 3, y: 1, value: 14, id: 14},
-    {x: 3, y: 2, value: 15, id: 15},
-    {x: 3, y: 3, value: "V", id: "vide"}
+    {x: 3, y: 2, value: 10, id: 15},
+    {x: 3, y: 3, value: 15, id: 16}
 ];
-console.log(board);
 
 let resultatJoueur;
 let pariteCaseVide;
@@ -35,13 +27,14 @@ $(document).ready(function () {
         //Afficher le plateau de jeu
         deleteTable();
         etatInitial(board);
+        updateValues(board);
         //Récupérer sous forme de tableau unique le plateau de jeu initial
         resultatJoueur = makeTableResult(board);
         //Définir si le plateau de jeu initial est soluble ou pas
         solubleOrNot(resultatJoueur);
     })
 
-    $(".tableauBody").click(function () {
+    $(".taquin").click(function () {
         //Récupérer sous forme de tableau unique le plateau de jeu en cours dès qu'on clique sur le jeu
         resultatJoueur = makeTableResult(board);
         //Lorsque le joueur joue, vérifier s'il a gagné
@@ -51,13 +44,13 @@ $(document).ready(function () {
 })
 
 
-//Fonction permettant de générer un tableau
+//Fonction permettant de générer un tableau vide
 function etatInitial(tab) {
     //Déterminer la parité de la case vide
     let parite;
     for (let j = 0; j < Object.keys(tab).length; j++) {
         if (j == 0 || j == 4 || j == 8 || j == 12) {
-            $(".tableauBody").append("<tr id='ligne" + tab[j].x + "'></tr>>");
+            $(".taquin").append("<div class='row' id='ligne" + tab[j].x + "'></div>");
         }
         //Déterminer la parité de la case vide lorsqu'elle est sur cette case
         if ((tab[j].x + tab[j].y) % 2 == 0) {
@@ -65,13 +58,28 @@ function etatInitial(tab) {
         } else {
             parite = "Impair";
         }
-        $("#ligne" + tab[j].x).append('<td id="' + tab[j].id + '" class="' + parite + '">' + tab[j].value + '</td>');
+        $("#ligne" + tab[j].x).append('<div id="' + tab[j].id + '" class="' + parite + ' col-md-3 res"></div>');
+    }
+    moveCase(tab);
+}
+
+//Fonction permettant d'ajouter les valeurs dans le plateau de jeu
+function updateValues(tab) {
+    for (let j = 0; j < Object.keys(tab).length; j++) {
+        $("#"+ (j+1)).html(tab[j].value);
+        //Ajouter une classe "vide" à la case vide
+        if (tab[j].value == "V"){
+            $("#"+ (j+1)).addClass("vide");
+        }else{
+            $("#"+ (j+1)).removeClass("vide");
+        }
     }
 }
 
+
 // Fonction pour supprimer le tableau
 function deleteTable() {
-    $("tr").remove();
+    $("div.row").remove();
 }
 
 //Fonction pour transformer l'objet en un tableau unique
@@ -91,10 +99,13 @@ function getPariteCaseVide(tableauResultat) {
     let pariteCaseVide = "Pair";
     //Si la case vide n'est pas à la fin du tableau, déterminer sa parité
     if (indexV != (tableauResultat.length - 1)) {
-        console.log("l'index de v dans getparitecasevide : " + indexV);
-        //retourner la classe de la case vide qui correspond à sa parité
-        pariteCaseVide = $("#" + (indexV + 1)).attr('class');
+        //Checker si la case a la classe "Impair" pour déterminer sa parité
+        let isImpair = $("#" + (indexV + 1)).hasClass("Impair");
+        if (isImpair){
+            pariteCaseVide = "Impair";
+        }
     }
+    console.log("parité case vide : " + pariteCaseVide);
     return pariteCaseVide;
 }
 
@@ -114,7 +125,6 @@ function getPariteTransposition(tableauResultat) {
         //Remplacer la position initiale du V par la valeur qui était à la fin du tableau
         tableauResultat[(tableauResultat.length - 1)] = "V";
         count++;
-        console.log("jai bougé le V")
     }
     //Supprimer la case vide du tableau
     tableauResultat.pop();
@@ -122,9 +132,7 @@ function getPariteTransposition(tableauResultat) {
     //Boucler sur le tableau
     for (let i = (tableauResultat.length - 1); i >= 0; i--) {
         //Trouver le plus petit nombre du tableau
-        let max = Math.max(...tableauResultat
-    )
-        ;
+        let max = Math.max(...tableauResultat);
         //Trouver l'index du maximum
         let indexMax = tableauResultat.indexOf(max);
         //Récupérer dans une variable la case courante
@@ -133,7 +141,6 @@ function getPariteTransposition(tableauResultat) {
         if (indexMax != i) {
             tableauResultat[indexMax] = toMove;
             tableauResultat[i] = max;
-            console.log("J'échange " + toMove + " avec le max : " + max);
             count++;
         }
         //Ajouter dans le tableau résultat le max
@@ -149,7 +156,7 @@ function getPariteTransposition(tableauResultat) {
         parite = "Impair";
     }
     console.log("nb transpositions : " + count);
-    console.log("parite : " + parite);
+    console.log("parite transposition : " + parite);
     return parite;
 }
 
@@ -160,7 +167,6 @@ function solubleOrNot(tableauResultat) {
     if (pariteCaseVide != pariteTransposition) {
         soluble = false;
     }
-    console.log("parite case vide : " + pariteCaseVide + " parité transposition : " + pariteTransposition);
     console.log("soluble : " + soluble);
     return soluble;
 }
@@ -168,17 +174,11 @@ function solubleOrNot(tableauResultat) {
 
 // Fonction qui compare si le resultat proposé est égal au resultat attendu
 function isAWinner(resultatDuJoueur) {
-    console.log(resultatDuJoueur);
-
     var foundEmptyCaseID = resultatDuJoueur.indexOf('V');
 
     if (foundEmptyCaseID == resultatDuJoueur.length - 1) {
         resultatDuJoueur.pop();
-        console.log('"V" is the last element of the table');
-    } else {
-        console.log('"V" is not the last element of the table');
     }
-
 
 ////// Si le tableau est en ordre croissant, décroissant ou non rangé 
 
@@ -198,12 +198,27 @@ function isAWinner(resultatDuJoueur) {
     if (isAscending) {
         console.log('Partie gagnée');
     }
-    else if (isDescending) {
-        console.log('Continuer');
-    }
-    else {
-        console.log('Continuer');
-    }
 
 }
 
+
+function moveCase(board){
+    $(".res").click( function(){
+
+        //Récupérer l'id de la case cliquée
+        let divIdClicked = $(this).attr('id');
+
+        //Stocker la valeur de la case cliquée
+        let valueClickedCase = board[divIdClicked-1].value;
+
+        //Récupérer la position de la case vide dans le tableau "board"
+        let indexCaseVide = board.findIndex(i => i.value === 'V');
+
+        //Attribuer à la case cliquée la valeur "vide"
+        board[divIdClicked-1].value = "V";
+        //Appliquer à la case vide la valeur de la case cliquée
+        board[indexCaseVide].value = valueClickedCase;
+        //Afficher le plateau de jeu MAJ
+        updateValues(board);
+    })
+}
