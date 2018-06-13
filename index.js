@@ -1,4 +1,4 @@
-//Plateau de jeu
+//Plateau de jeu initial
 let board = [
     {x: 0, y: 0, value: 1, id: 1},
     {x: 0, y: 1, value: 2, id: 2},
@@ -26,7 +26,13 @@ $(document).ready(function () {
     $(".initialiser").click(function () {
         //Afficher le plateau de jeu
         deleteTable();
+        //Générer un tableau de valeurs aléatoires
+        tableauAlea = generateTableValue();
+        //Créer le plateau de jeu grâce au tableau de valeurs aléatoires
+        board = createBoard(tableauAlea, board);
+        //Afficher le plateau de jeu vide
         etatInitial(board);
+        //Mettre les valeurs dans le plateau de jeu
         updateValues(board);
         //Récupérer sous forme de tableau unique le plateau de jeu initial
         resultatJoueur = makeTableResult(board);
@@ -201,7 +207,6 @@ function isAWinner(resultatDuJoueur) {
 
 }
 
-
 function moveCase(board){
     $(".res").click( function(){
 
@@ -221,4 +226,41 @@ function moveCase(board){
         //Afficher le plateau de jeu MAJ
         updateValues(board);
     })
+}
+
+//Fonction générant un tableau simple avec l'ensemble des cases dispatchées aléatoirement
+function generateTableValue(){
+    //Générer un tableau avec l'ensemble des valeurs à disposer sur le plateau de jeu 1 à 15
+    let tableau = [];
+    for (let i = 1; i <= 15; i++ ){
+        tableau.push(i);
+    }
+    //Ajouter la case vide dans ce tableau
+    tableau.push("V");
+
+    //Créer un tableau qui contiendra le résultat final
+    let resultat = [];
+    //Tant que le nouveau tableau n'est pas complet, le compléter
+    while(resultat.length < 16) {
+        //Générer un nombre aléatoire correspondant à un index du tableau
+        let min = Math.ceil(0);
+        let max = Math.floor((tableau.length - 1));
+        let alea = Math.floor(Math.random() * (max - min +1)) + min;
+        //Récupérer la valeur dont l'index a été tiré au sort
+        let value = tableau[alea];
+        //Ajouter la valeur (dont l'index a été sélectionné) dans le tableau de résultat final
+        resultat.push(value);
+        //Supprimer la valeur sélectionné dans le tableau initial
+        tableau.splice(alea, 1);
+    }
+    return resultat;
+}
+
+//Fonction permettant de créer le plateau de jeu (board) en prenant en paramètre un tableau contenant les valeurs des cases dispatchées aléatoirement
+function createBoard(tableAlea, board){
+    //Parcourir le plateau de jeu (tableau d'objets)
+    for (let i = 0; i < Object.keys(board).length; i++){
+        board[i].value = tableAlea[i];
+    }
+    return board;
 }
