@@ -1,4 +1,4 @@
-//Plateau de jeu initial
+//Plateau de jeu pour jouer
 let board = [
     {x: 0, y: 0, value: 1, id: 1},
     {x: 0, y: 1, value: 2, id: 2},
@@ -18,22 +18,63 @@ let board = [
     {x: 3, y: 3, value: 15, id: 16}
 ];
 
-// //Tableau simple contenant le plateau de jeu généré
-// let resultatJoueur;
+//Plateau de jeu initial
+let boardInitial = [
+    {x: 0, y: 0, value: 1, id: 1},
+    {x: 0, y: 1, value: 2, id: 2},
+    {x: 0, y: 2, value: 3, id: 3},
+    {x: 0, y: 3, value: 4, id: 4},
+    {x: 1, y: 0, value: 5, id: 5},
+    {x: 1, y: 1, value: 6, id: 6},
+    {x: 1, y: 2, value: 7, id: 7},
+    {x: 1, y: 3, value: 8, id: 8},
+    {x: 2, y: 0, value: 9, id: 9},
+    {x: 2, y: 1, value: "V", id: 10},
+    {x: 2, y: 2, value: 11, id: 11},
+    {x: 2, y: 3, value: 12, id: 12},
+    {x: 3, y: 0, value: 13, id: 13},
+    {x: 3, y: 1, value: 14, id: 14},
+    {x: 3, y: 2, value: 10, id: 15},
+    {x: 3, y: 3, value: 15, id: 16}
+];
+
+let typeCase;
 
 $(document).ready(function () {
     //Lorsque l'on click sur le bouton newgame générer une nouvelle partie
-    $(".newgame").click(function () {
+    $(".newgameChiffres").click(function () {
         //Afficher le plateau de jeu
         deleteTable();
         //Générer un tableau de valeurs aléatoires
         tableauAlea = generateTableValue();
         //Créer le plateau de jeu grâce au tableau de valeurs aléatoires
         board = createBoard(tableauAlea, board);
+        //Sauvegarder le board dans son état initial
+        boardInitial = createBoard(tableauAlea, boardInitial);
         //Afficher le plateau de jeu vide
-        etatInitial(board);
+        typeCase = "caseChiffre";
+        generateCadre(board, typeCase);
         //Mettre les valeurs dans le plateau de jeu
-        updateValues(board);
+        updateValues(board, typeCase);
+        //Définir si le plateau de jeu généré (sous forme de tableau simple) est soluble ou pas : renvoi true of false
+        soluble = solubleOrNot(tableauAlea);
+        narguer(soluble);
+    })
+
+    $(".newgameImage").click(function () {
+        //Afficher le plateau de jeu
+        deleteTable();
+        //Générer un tableau de valeurs aléatoires
+        tableauAlea = generateTableValue();
+        //Créer le plateau de jeu grâce au tableau de valeurs aléatoires
+        board = createBoard(tableauAlea, board);
+        //Sauvegarder le board dans son état initial
+        boardInitial = createBoard(tableauAlea, boardInitial);
+        //Afficher le plateau de jeu vide
+        typeCase = "";
+        generateCadre(board, typeCase);
+        //Mettre les valeurs dans le plateau de jeu
+        updateValues(board, typeCase);
         //Définir si le plateau de jeu généré (sous forme de tableau simple) est soluble ou pas : renvoi true of false
         soluble = solubleOrNot(tableauAlea);
         narguer(soluble);
@@ -44,13 +85,23 @@ $(document).ready(function () {
         let resultatJoueur = makeTableResult(board);
         //Lorsque le joueur joue, vérifier s'il a gagné à chaque mouvement
         isAWinner(resultatJoueur);
+        if (isAWinner(resultatJoueur) == true){
+            alert("Partie gagnée !!!!");
+        }
+    })
+
+    $(".initialiser").click(function () {
+        //Board reprend la valeur du boardInitial
+        board = $.extend(true, [], boardInitial);
+        //Afficher les valeurs et bouger les cases
+        updateValues(board, typeCase);
     })
 
 })
 
 
 //Fonction permettant de générer un tableau vide
-function etatInitial(tab) {
+function generateCadre(tab, classeCss) {
     //Déterminer la parité de la case vide
     let parite;
     for (let j = 0; j < Object.keys(tab).length; j++) {
@@ -63,22 +114,37 @@ function etatInitial(tab) {
         } else {
             parite = "Impair";
         }
-        $("#ligne" + tab[j].x).append('<div id="' + tab[j].id + '" class="' + parite + ' col-md-3 res"></div>');
+        $("#ligne" + tab[j].x).append('<div id="' + tab[j].id + '" class="' + parite + ' col-md-3 res '+ classeCss+'"></div>');
     }
-    moveCase(tab);
+    moveCase(tab, classeCss);
+}
+
+//Fonction permettant d'ajouter l'image dans le plateau de jeu
+function updateValuesImage(tab) {
+    for (let j = 0; j < Object.keys(tab).length; j++) {
+        $("#"+ (j+1)).html('<img class="caseImage" src="image/'+tab[j].value+'.png">');
+    }
+    $(".resultatImage").show();
+    $(".resultatImage").html('Résultat <br><img src="image/resultat_image.png">');
 }
 
 //Fonction permettant d'ajouter les valeurs dans le plateau de jeu
-function updateValues(tab) {
-    for (let j = 0; j < Object.keys(tab).length; j++) {
-        $("#"+ (j+1)).html(tab[j].value);
-        //Ajouter une classe "vide" à la case vide
-        if (tab[j].value == "V"){
-            $("#"+ (j+1)).addClass("vide");
-        }else{
-            $("#"+ (j+1)).removeClass("vide");
+function updateValues(tab, classeCss) {
+    if (classeCss != '') {
+        for (let j = 0; j < Object.keys(tab).length; j++) {
+            $("#" + (j + 1)).html(tab[j].value);
+            //Ajouter une classe "vide" à la case vide
+            if (tab[j].value == "V") {
+                $("#" + (j + 1)).addClass("vide");
+            } else {
+                $("#" + (j + 1)).removeClass("vide");
+            }
         }
+        $(".resultatImage").hide();
+    }else{
+        updateValuesImage(tab);
     }
+    moveCase(tab, classeCss);
 }
 
 
@@ -201,12 +267,12 @@ function isAWinner(resultatDuJoueur) {
     }
 
     if (isAscending) {
-        console.log('Partie gagnée');
+        return true;
     }
 
 }
 
-function moveCase(board){
+function moveCase(board, typeCase){
     $(".res").click( function(){
         //Récupérer l'id de la case cliquée
         let divIdClicked = $(this).attr('id');
@@ -230,9 +296,12 @@ function moveCase(board){
                 //Appliquer à la case vide la valeur de la case cliquée
                 board[indexCaseVide].value = valueClickedCase;
                 //Afficher le plateau de jeu MAJ
-                updateValues(board);
-            }else{
-                alert("Movement not possible");
+                updateValues(board, typeCase);
+                // if (typeCase == "caseChiffre") {
+                //     updateValues(board, typeCase);
+                // }else{
+                //     updateValues(board, '');
+                // }
             }
         }else if(videY === clickedY) {
             if (clickedX == videX - 1 || clickedX == videX + 1) {
@@ -247,14 +316,13 @@ function moveCase(board){
                 //Appliquer à la case vide la valeur de la case cliquée
                 board[indexCaseVide].value = valueClickedCase;
                 //Afficher le plateau de jeu MAJ
-                updateValues(board);
-            } else {
-                alert("Movement not possible");
+                if (typeCase == "caseChiffre") {
+                    updateValues(board, typeCase);
+                }else{
+                    updateValuesImage(board);
+                }
             }
-        }else{
-            alert("Movement not possible");
         }
-
     })
 }
 
@@ -303,3 +371,5 @@ function narguer(condition){
     }
     $("#solubleOrNot").html(resultat);
 }
+
+

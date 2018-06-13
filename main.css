@@ -8,15 +8,15 @@ body{
 
 .taquin{
     width: 70%;
-    margin: auto;
+    margin-left: 30%;
     align-items: center;
     text-align: center;
-    justify-content: center;
-    align-content: center;
+    /*justify-content: center;*/
+    /*align-content: center;*/
     vertical-align: center;
 }
 
-.res {
+.caseChiffre {
     font-size: 2.5em;
     border: 1px double black;
     height: 100px;
@@ -42,4 +42,17 @@ body{
 #solubleOrNot{
     font-weight: bold;
     font-size: 1.5em;
+}
+
+.caseImage{
+    border: 1px solid black;
+}
+
+.resultatImage img{
+    width: 200px;
+}
+
+.resultatImage{
+    font-weight: bold;
+    font-size: 1.1em;
 }
