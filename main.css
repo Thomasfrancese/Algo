@@ -38,3 +38,8 @@ body{
 .vide{
     background-color: red;
 }
+
+#solubleOrNot{
+    font-weight: bold;
+    font-size: 1.5em;
+}

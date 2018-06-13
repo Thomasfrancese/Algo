@@ -18,12 +18,12 @@ let board = [
     {x: 3, y: 3, value: 15, id: 16}
 ];
 
-let resultatJoueur;
-let pariteCaseVide;
+// //Tableau simple contenant le plateau de jeu généré
+// let resultatJoueur;
 
 $(document).ready(function () {
-    //Lorsque l'on click sur le bouton initialiser
-    $(".initialiser").click(function () {
+    //Lorsque l'on click sur le bouton newgame générer une nouvelle partie
+    $(".newgame").click(function () {
         //Afficher le plateau de jeu
         deleteTable();
         //Générer un tableau de valeurs aléatoires
@@ -34,16 +34,15 @@ $(document).ready(function () {
         etatInitial(board);
         //Mettre les valeurs dans le plateau de jeu
         updateValues(board);
-        //Récupérer sous forme de tableau unique le plateau de jeu initial
-        resultatJoueur = makeTableResult(board);
-        //Définir si le plateau de jeu initial est soluble ou pas
-        solubleOrNot(resultatJoueur);
+        //Définir si le plateau de jeu généré (sous forme de tableau simple) est soluble ou pas : renvoi true of false
+        soluble = solubleOrNot(tableauAlea);
+        narguer(soluble);
     })
 
     $(".taquin").click(function () {
         //Récupérer sous forme de tableau unique le plateau de jeu en cours dès qu'on clique sur le jeu
-        resultatJoueur = makeTableResult(board);
-        //Lorsque le joueur joue, vérifier s'il a gagné
+        let resultatJoueur = makeTableResult(board);
+        //Lorsque le joueur joue, vérifier s'il a gagné à chaque mouvement
         isAWinner(resultatJoueur);
     })
 
@@ -217,7 +216,7 @@ function moveCase(board){
         let indexVide = board.findIndex(i => i.value === 'V');
         let videX = board[indexVide].x;
         let videY = board[indexVide].y;
-        console.log(videX, videY);
+
         if(videX === clickedX){
             if(clickedY == videY-1 || clickedY == videY + 1){
                 //Stocker la valeur de la case cliquée
@@ -294,4 +293,13 @@ function createBoard(tableAlea, board){
         board[i].value = tableAlea[i];
     }
     return board;
+}
+
+//Fonction pour narguer le joueur
+function narguer(condition){
+    let resultat = 'Cette partie est impossible à résoudre mais si tu es ambitieux ... sinon "nouveau jeu"';
+    if (condition){
+        resultat = "Je veux pas te mettre la pression mais cette partie peut être gagnée, c'est mathématique!";
+    }
+    $("#solubleOrNot").html(resultat);
 }
