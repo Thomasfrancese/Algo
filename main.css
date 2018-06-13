@@ -18,7 +18,9 @@ body{
 
 .caseChiffre {
     font-size: 2.5em;
-    border: 1px double black;
+    /*border: 1px double black;*/
+    border: 3px outset black;
+    border-radius: 20px ;
     height: 100px;
     background-color: burlywood;
     vertical-align: center;

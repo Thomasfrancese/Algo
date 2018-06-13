@@ -81,13 +81,13 @@ $(document).ready(function () {
     })
 
     $(".taquin").click(function () {
-        //Récupérer sous forme de tableau unique le plateau de jeu en cours dès qu'on clique sur le jeu
-        let resultatJoueur = makeTableResult(board);
-        //Lorsque le joueur joue, vérifier s'il a gagné à chaque mouvement
-        isAWinner(resultatJoueur);
-        if (isAWinner(resultatJoueur) == true){
-            alert("Partie gagnée !!!!");
-        }
+        // //Récupérer sous forme de tableau unique le plateau de jeu en cours dès qu'on clique sur le jeu
+        // let resultatJoueur = makeTableResult(board);
+        // //Lorsque le joueur joue, vérifier s'il a gagné à chaque mouvement
+        // isAWinner(resultatJoueur);
+        // if (isAWinner(resultatJoueur) == true){
+        //     alert("Partie gagnée !!!!");
+        // }
     })
 
     $(".initialiser").click(function () {
@@ -145,6 +145,13 @@ function updateValues(tab, classeCss) {
         updateValuesImage(tab);
     }
     moveCase(tab, classeCss);
+    //Récupérer sous forme de tableau unique le plateau de jeu en cours dès qu'on clique sur le jeu
+    let resultatJoueur = makeTableResult(tab);
+    //Lorsque le joueur joue, vérifier s'il a gagné à chaque mouvement
+    isAWinner(resultatJoueur);
+    if (isAWinner(resultatJoueur) == true){
+        alert("Partie gagnée !!!!");
+    }
 }
 
 
