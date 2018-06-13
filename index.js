@@ -204,21 +204,52 @@ function isAWinner(resultatDuJoueur) {
 
 function moveCase(board){
     $(".res").click( function(){
-
         //Récupérer l'id de la case cliquée
         let divIdClicked = $(this).attr('id');
 
-        //Stocker la valeur de la case cliquée
-        let valueClickedCase = board[divIdClicked-1].value;
+        let clickedX = board[divIdClicked-1].x;
+        let clickedY = board[divIdClicked-1].y;
+        let indexVide = board.findIndex(i => i.value === 'V');
+        let videX = board[indexVide].x;
+        let videY = board[indexVide].y;
+        console.log(videX, videY);
+        if(videX === clickedX){
+            if(clickedY == videY-1 || clickedY == videY + 1){
+                //Stocker la valeur de la case cliquée
+                let valueClickedCase = board[divIdClicked-1].value;
 
-        //Récupérer la position de la case vide dans le tableau "board"
-        let indexCaseVide = board.findIndex(i => i.value === 'V');
+                //Récupérer la position de la case vide dans le tableau "board"
+                let indexCaseVide = board.findIndex(i => i.value === 'V');
 
-        //Attribuer à la case cliquée la valeur "vide"
-        board[divIdClicked-1].value = "V";
-        //Appliquer à la case vide la valeur de la case cliquée
-        board[indexCaseVide].value = valueClickedCase;
-        //Afficher le plateau de jeu MAJ
-        updateValues(board);
+                //Attribuer à la case cliquée la valeur "vide"
+                board[divIdClicked-1].value = "V";
+                //Appliquer à la case vide la valeur de la case cliquée
+                board[indexCaseVide].value = valueClickedCase;
+                //Afficher le plateau de jeu MAJ
+                updateValues(board);
+            }else{
+                alert("Movement not possible");
+            }
+        }else if(videY === clickedY) {
+            if (clickedX == videX - 1 || clickedX == videX + 1) {
+                //Stocker la valeur de la case cliquée
+                let valueClickedCase = board[divIdClicked - 1].value;
+
+                //Récupérer la position de la case vide dans le tableau "board"
+                let indexCaseVide = board.findIndex(i => i.value === 'V');
+
+                //Attribuer à la case cliquée la valeur "vide"
+                board[divIdClicked - 1].value = "V";
+                //Appliquer à la case vide la valeur de la case cliquée
+                board[indexCaseVide].value = valueClickedCase;
+                //Afficher le plateau de jeu MAJ
+                updateValues(board);
+            } else {
+                alert("Movement not possible");
+            }
+        }else{
+            alert("Movement not possible");
+        }
+
     })
 }
