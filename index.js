@@ -81,13 +81,16 @@ $(document).ready(function () {
     })
 
     $(".taquin").click(function () {
-        // //Récupérer sous forme de tableau unique le plateau de jeu en cours dès qu'on clique sur le jeu
-        // let resultatJoueur = makeTableResult(board);
-        // //Lorsque le joueur joue, vérifier s'il a gagné à chaque mouvement
-        // isAWinner(resultatJoueur);
-        // if (isAWinner(resultatJoueur) == true){
-        //     alert("Partie gagnée !!!!");
-        // }
+        //Récupérer sous forme de tableau unique le plateau de jeu en cours dès qu'on clique sur le jeu
+        let resultatJoueur = makeTableResult(board);
+        //Lorsque le joueur joue, vérifier s'il a gagné à chaque mouvement
+        isAWinner(resultatJoueur);
+        if (isAWinner(resultatJoueur) == true){
+            setTimeout(function()
+            {
+                alert("Partie gagnée !!!!");
+            }, 1000);
+        }
     })
 
     $(".initialiser").click(function () {
@@ -145,13 +148,6 @@ function updateValues(tab, classeCss) {
         updateValuesImage(tab);
     }
     moveCase(tab, classeCss);
-    //Récupérer sous forme de tableau unique le plateau de jeu en cours dès qu'on clique sur le jeu
-    let resultatJoueur = makeTableResult(tab);
-    //Lorsque le joueur joue, vérifier s'il a gagné à chaque mouvement
-    isAWinner(resultatJoueur);
-    if (isAWinner(resultatJoueur) == true){
-        alert("Partie gagnée !!!!");
-    }
 }
 
 
@@ -304,11 +300,6 @@ function moveCase(board, typeCase){
                 board[indexCaseVide].value = valueClickedCase;
                 //Afficher le plateau de jeu MAJ
                 updateValues(board, typeCase);
-                // if (typeCase == "caseChiffre") {
-                //     updateValues(board, typeCase);
-                // }else{
-                //     updateValues(board, '');
-                // }
             }
         }else if(videY === clickedY) {
             if (clickedX == videX - 1 || clickedX == videX + 1) {
@@ -323,11 +314,7 @@ function moveCase(board, typeCase){
                 //Appliquer à la case vide la valeur de la case cliquée
                 board[indexCaseVide].value = valueClickedCase;
                 //Afficher le plateau de jeu MAJ
-                if (typeCase == "caseChiffre") {
-                    updateValues(board, typeCase);
-                }else{
-                    updateValuesImage(board);
-                }
+                updateValues(board, typeCase);
             }
         }
     })
