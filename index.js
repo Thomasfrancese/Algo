@@ -29,12 +29,12 @@ let boardInitial = [
     {x: 1, y: 2, value: 7, id: 7},
     {x: 1, y: 3, value: 8, id: 8},
     {x: 2, y: 0, value: 9, id: 9},
-    {x: 2, y: 1, value: "V", id: 10},
+    {x: 2, y: 1, value: 10, id: 10},
     {x: 2, y: 2, value: 11, id: 11},
     {x: 2, y: 3, value: 12, id: 12},
     {x: 3, y: 0, value: 13, id: 13},
     {x: 3, y: 1, value: 14, id: 14},
-    {x: 3, y: 2, value: 10, id: 15},
+    {x: 3, y: 2, value: "V", id: 15},
     {x: 3, y: 3, value: 15, id: 16}
 ];
 
@@ -60,6 +60,8 @@ let boardGagnant = [
 
 let typeCase;
 
+let tableauGagnant = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,"V"]];
+
 $(document).ready(function () {
 
     //Lorsque l'on click sur le bouton newgame générer une nouvelle partie
@@ -80,6 +82,9 @@ $(document).ready(function () {
         //Définir si le plateau de jeu généré (sous forme de tableau simple) est soluble ou pas : renvoi true of false
         soluble = solubleOrNot(tableauAlea);
         narguer(soluble);
+
+        //Créer un tableau 2 dimensions :
+        console.log(modifyData(boardInitial));
 
     })
 
@@ -122,15 +127,21 @@ $(document).ready(function () {
         updateValues(board, typeCase);
     })
 
-    // $(".resolution").click(function () {
-    //     let indexVide = boardInitial.findIndex(i => i.value === "V");
-    //
-    //     resoudreTaquin(indexVide, 0, -1 );
-    //     console.log("tableau meilleurs mouvements : " + best_moves)
-    //     // console.log("best-depth : " + best_depth);
-    //     // console.log("best-moves : " + best_moves);
-    //     // console.log("moves : " + moves);
-    // })
+    $(".resolution").click(function () {
+
+        let test = [
+            [3,2,"V",6],
+            [13,12,4,1],
+            [15,8,9,7],
+            [5,14,11,10]
+        ];
+
+        let gagne = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,'V']];
+        //Modifier le tableau d'objets en un tableau 2 dimensions
+        let tableauTaquin = modifyData(boardInitial);
+        //Résoudre le taquin
+        searchDFS(test, 0);
+    })
 
 
 })
@@ -400,7 +411,7 @@ function narguer(condition){
 }
 
 //Profondeur maximum (nb de permutations)
-let max_depth = 15;
+let max_depth = 96;
 //Tableau contenant les déplacements à effectuer
 let moves = [];
 //Tableau contenant la meilleure solution pour résoudre le taquin
@@ -408,151 +419,170 @@ let best_moves = [];
 //Nb minimum de mouvements
 let best_depth = max_depth;
 
-//Fonction comparant le board avec la solution
-// 0 = différent
-// 1 = idem
-function isCorrect(){
-    for (let i = 0 ; i < boardInitial.length ; i++) {
-        if (boardInitial[i].value !== boardGagnant[i].value) {
-            return 0;
+//Fonction permettant de transformer en un tableau 2 dimensions, le plateau de jeu format tableau d'objets
+function modifyData(board){
+    let resultat = [[],[],[], []];
+
+    for (let i = 0; i < board.length; i++){
+        resultat[board[i].x][board[i].y] = board[i].value;
+    }
+    return resultat;
+}
+
+//Fonction retournant les coordonnées de la case vide dans un tableau à 2 dimensions
+function findCoordVide(tableauJeu){
+    let origineX="";
+    let origineY="";
+    for (let i = 0; i < tableauJeu.length; i++){
+        for (let j = 0; j < tableauJeu[i].length; j++){
+            if (tableauJeu[i][j] == "V"){
+                origineX = i;
+                origineY = j;
+                return [origineX, origineY];
+            }
+        }
+    }
+}
+
+//Fonction permettant de déterminer si le tableau de jeu est le même que le gagnant
+function isCorrect(tableauJeu){
+    for (let i=0; i < tableauJeu.length; i++ ){
+        for (let j=0; j < tableauJeu[i].length; j++){
+            if (tableauJeu[i][j] != tableauGagnant[i][j]){
+                return 0;
+            }
         }
     }
     return 1;
 }
 
-//Fonction permettant de résoudre en profondeur (DFS) le taquin
-//indexVide = position actuelle de la case vide
-//indexClicked = position du coup précédent
-//depth = nb de coups maximum pour résoudre le taquin
-function resoudreTaquin(indexVide, depth, indexClicked){
-    //Si le nombre de coups est supérieur à la limite, arrêter la recherche sur cette branche
-    if (depth >= best_depth){
-        return;
-    }
-
-    //Dès qu'il y a un mouvement, enregistrer la valeur dans le tableau des déplacements "moves"
-    if (depth != 0){
-        moves[depth-1] = boardInitial[indexClicked].value;
-        // moves.push(boardInitial[indexClicked].value);
-        console.log("moves : " + moves);
-    }
-
-    //Si le plateau de jeu actuel correspond à celui gagnant
-    if(isCorrect() === 1){
-        console.log("Solution trouvé en "+depth+" mouvements");
-        //enregistrer le nombre de déplacements comme "le meilleur"
-        best_depth = depth;
-        //Enregistrer la solution trouvée dans le tableau de la meilleure solution
-        for (let i = 0; i < boardInitial.length ; i++){
-            best_moves[i] = moves[i];
+//Copie un tableau 2 dimensions et le retourne dans un tableau tout neuf
+function copyTable(tab){
+    let res = [[], [], [], []];
+    for (let i = 0; i < tab.length; i++){
+        for (let j = 0; j < tab[i].length; j++){
+            res[i][j] = tab[i][j];
         }
-        return;
     }
+    return res;
+}
 
-    //Créer les mouvements possibles autour de la case vide
-    //Descendre
-    let x1 = indexVide + 4;
-    //Monter
-    let x2 = indexVide -4;
-    //Droite
-    let x3 = indexVide + 1;
-    //Gauche
-    let x4 = indexVide - 1;
-
-    //Eviter que la case vide retourne sur la case où elle était le coup précédent
-    //Si la nouvelle position correspond à l'ancienne alors bloquer cette nouvelle position en lui donnant une valeur négative
-    if ( x1 === indexClicked) {
-        x1 = -1;
+//Permet de monter la case vide sur un tableau 2 dimensions
+//return : nouveau tableau avec modif si possible ou false si impossible de monter
+function up(tableauJeu){
+    //Récupérer les coordonnées de la case vide
+    let coordVide = findCoordVide(tableauJeu);
+    let origineX = coordVide[0];
+    let origineY = coordVide[1];
+    //Si une case vide existe au-dessus retourner un nouveau tableau avec la permutation
+    if (origineX-1 >= 0){
+        let res = copyTable(tableauJeu);
+        res[origineX][origineY] = res[origineX-1][origineY];
+        res[origineX-1][origineY] = "V";
+        return res;
+    }else {
+        return false;
     }
-    if ( x2 === indexClicked ) {
-        x2 = -1;
+}
+
+//Permet de descendre la case vide sur un tableau 2 dimensions
+//return : nouveau tableau avec modif si possible ou false si impossible
+function down(tableauJeu){
+    //Récupérer les coordonnées de la case vide
+    let coordVide = findCoordVide(tableauJeu);
+    let origineX = coordVide[0];
+    let origineY = coordVide[1];
+    //Si une case vide existe au-dessus retourner un nouveau tableau avec la permutation
+    if (origineX+1 < tableauJeu.length){
+        let res = copyTable(tableauJeu);
+        res[origineX][origineY] = res[origineX+1][origineY];
+        res[origineX+1][origineY] = "V";
+        return res;
+    }else {
+        return false;
     }
-    if ( x3 === indexClicked ) {
-        x3 = -1;
+}
+
+//Permet de décaler à gauche la case vide sur un tableau 2 dimensions
+//return : nouveau tableau avec modif si possible ou false si impossible
+function left(tableauJeu){
+    //Récupérer les coordonnées de la case vide
+    let coordVide = findCoordVide(tableauJeu);
+    let origineX = coordVide[0];
+    let origineY = coordVide[1];
+    //Si une case vide existe au-dessus retourner un nouveau tableau avec la permutation
+    if (origineY-1 >= 0){
+        let res = copyTable(tableauJeu);
+        res[origineX][origineY] = res[origineX][origineY-1];
+        res[origineX][origineY-1] = "V";
+        return res;
+    }else {
+        return false;
     }
-    if ( x4 === indexClicked ) {
-        x4 = -1;
-    }
-
-    //Si la case vide peut bouger vers le bas
-    if ( (x1 >= 0) && (x1 < boardInitial.length)){
-        //Récupérer la valeur de la case qui va être remplacée par la case vide (indexClicked)
-        indexClicked = x1;
-        //attribuer à la case vide la valeur de la nouvelle case
-        boardInitial[indexVide].value = boardInitial[indexClicked].value;
-        //attribuer à la nouvelle case la valeur de la case vide
-        boardInitial[indexClicked].value = "V";
-        //Appeler la fonction elle même pour continuer la récursivité
-        resoudreTaquin(x1, depth + 1, indexVide);
-
-        //Se repositionner sur le plateau de jeu initial
-        //La case qui a été remplacée par la case reprend sa valeur initiale
-        boardInitial[indexClicked].value = boardInitial[indexVide].value;
-        //La case vide reprend sa place
-        boardInitial[indexVide].value = "V";
-    }
-
-    //Si la case vide peut bouger vers le haut
-    if ( (x2 >= 0) && (x2 < boardInitial.length)) {
-        //Récupérer la valeur de la case qui va être remplacée par la case vide (indexClicked)
-        indexClicked = x2;
-        //attribuer à la case vide la valeur de la nouvelle case
-        boardInitial[indexVide].value = boardInitial[indexClicked].value;
-        //attribuer à la nouvelle case la valeur de la case vide
-        boardInitial[indexClicked].value = "V";
-        //Appeler la fonction elle même pour continuer la récursivité
-        resoudreTaquin(x2, depth + 1, indexVide);
-
-        //Se repositionner sur le plateau de jeu initial
-        //La case qui a été remplacée par la case reprend sa valeur initiale
-        boardInitial[indexClicked].value = boardInitial[indexVide].value;
-        //La case vide reprend sa place
-        boardInitial[indexVide].value = "V";
-    }
-
-    //Si la case vide peut bouger vers la droite
-    // agarder :
-    if ( (x3 >= 0) && (x3 < boardInitial.length) && ((x3 !==4) || (x3!==8) || (x3!==12))  ){
-        //Récupérer la valeur de la case qui va être remplacée par la case vide (indexClicked)
-        indexClicked = x3;
-        //attribuer à la case vide la valeur de la nouvelle case
-        boardInitial[indexVide].value = boardInitial[indexClicked].value;
-        //attribuer à la nouvelle case la valeur de la case vide
-        boardInitial[indexClicked].value = "V";
-        console.log("index x3 " + x3);
-        //Appeler la fonction elle même pour continuer la récursivité
-        resoudreTaquin(x3, depth + 1, indexVide);
-
-        //Se repositionner sur le plateau de jeu initial
-        //La case qui a été remplacée par la case reprend sa valeur initiale
-        boardInitial[indexClicked].value = boardInitial[indexVide].value;
-        //La case vide reprend sa place
-        boardInitial[indexVide].value = "V";
-        console.log("index x3 après la récursivité " + x3);
-
-    }
-
-    //Si la case vide peut bouger vers la gauche
-    if ( (x4 >= 0) && (x4 < boardInitial.length) && ((x4 !=3) || (x3!=7) || (x3!=11))){
-        //Récupérer la valeur de la case qui va être remplacée par la case vide (indexClicked)
-        indexClicked = x4;
-        //attribuer à la case vide la valeur de la nouvelle case
-        boardInitial[indexVide].value = boardInitial[indexClicked].value;
-        //attribuer à la nouvelle case la valeur de la case vide
-        boardInitial[indexClicked].value = "V";
-        //Appeler la fonction elle même pour continuer la récursivité
-        resoudreTaquin(x4, depth + 1, indexVide);
-
-        //Se repositionner sur le plateau de jeu initial
-        //La case qui a été remplacée par la case reprend sa valeur initiale
-        boardInitial[indexClicked].value = boardInitial[indexVide].value;
-        //La case vide reprend sa place
-        boardInitial[indexVide].value = "V";
-    }
-
-    // console.log("Tableau des meilleurs mouvements : " +best_moves);
 }
 
 
+//Permet de monter la case vide sur un tableau 2 dimensions
+//return : nouveau tableau avec modif si possible ou false si impossible de monter
+function right(tableauJeu){
+    //Récupérer les coordonnées de la case vide
+    let coordVide = findCoordVide(tableauJeu);
+    let origineX = coordVide[0];
+    let origineY = coordVide[1];
+    //Si une case vide existe au-dessus retourner un nouveau tableau avec la permutation
+    if (origineY+1 < tableauJeu.length){
+        let res = copyTable(tableauJeu);
+        res[origineX][origineY] = res[origineX][origineY+1];
+        res[origineX][origineY+1] = "V";
+        return res;
+    }else {
+        return false;
+    }
+}
 
-// resoudreTaquin(indexVide, 0, -1)
+function searchDFS(jeu, depth){
+    //Vérifier la profondeur max
+    if (depth > max_depth){
+        return false;
+    }
+    //Vérifier si le tableau est gagnant
+    if (isCorrect(jeu)){
+        alert("terminé");
+        console.log("solution trouvée en " + depth + " déplacements");
+        console.log(moves);
+        return true;
+    }
+    //Monter la case vide
+    let jeuHaut = up(jeu);
+    if (jeuHaut){
+        if (searchDFS(jeuHaut, depth+1)){
+            moves[depth] = "Up";
+            return true;
+        }
+    }
+    //Descendre la case vide
+    let jeuBas = down(jeu);
+    if (jeuBas){
+        if (searchDFS(jeuBas, depth+1)){
+            moves[depth] = "Down";
+            return true;
+        }
+    }
+    //Décaler à gauche la case vide
+    let jeuG = left(jeu);
+    if (jeuG){
+        if (searchDFS(jeuG, depth+1)){
+            moves[depth] = "Left";
+            return true;
+        }
+    }
+    //Décaler à droite la case vide
+    let jeuD = right(jeu);
+    if (jeuD){
+        if (searchDFS(jeuD, depth+1)){
+            moves[depth] = "Right";
+            return true;
+        }
+    }
+
+}

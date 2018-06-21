@@ -58,3 +58,12 @@ body{
     font-weight: bold;
     font-size: 1.1em;
 }
+
+.titreSolution{
+    display: none;
+}
+
+.solution{
+    font-size: 1.2em;
+    display: none;
+}
