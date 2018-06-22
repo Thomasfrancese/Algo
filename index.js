@@ -172,12 +172,15 @@ $(document).ready(function () {
         //Résoudre le taquin
         console.log("Profondeur max pour la résolution : " + max_depth);
         searchDFS(tableauJeu, 0, connus, moves);
+        //Afficher la solution dans la div
+        $(".titreSolution").show();
+        $(".solution").html(moves.join(" - ")).show();
     })
 
-    $(".deplacer").click(function () {
-        let test = ["Up", "Down", "Left", "Right", "Right"];
-        deplacerCaseVide(board, "caseChiffre", test);
-    })
+    // $(".deplacer").click(function () {
+    //     let test = ["Up", "Down", "Left", "Right", "Right"];
+    //     deplacerCaseVide(board, "caseChiffre", test);
+    // })
 })
 
 
@@ -719,7 +722,7 @@ function deplacerCaseVide(board, typeCase, moves){
         //Transformer en board (tableau d'objets)
         board = creerTableauObjets(tableauJeu, board);
         //Mettre à jour les valeurs
-        updateValues(board, "caseChiffre").setTimeout(1000);
+        updateValues(board, "caseChiffre");
 
     }
 
