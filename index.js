@@ -80,6 +80,8 @@ $(document).ready(function () {
 
     //Lorsque l'on click sur le bouton newgame générer une nouvelle partie
     $(".newgameChiffres").click(function () {
+        $(".titreSolution").hide();
+        $(".solution").hide();
         //Afficher le plateau de jeu
         deleteTable();
         //-------------------- ANCIENNE VERSION ----------------------
@@ -113,6 +115,8 @@ $(document).ready(function () {
     })
 
     $(".newgameImage").click(function () {
+        $(".titreSolution").hide();
+        $(".solution").hide();
         //Afficher le plateau de jeu
         deleteTable();
         //-------------------- ANCIENNE VERSION ----------------------
@@ -165,6 +169,8 @@ $(document).ready(function () {
     })
 
     $(".resolution").click(function () {
+        $(".titreSolution").hide();
+        $(".solution").hide();
         //Tableau regroupant les états connus lors de la résolution
         let connus = [];
         //Tableau contenant les mouvements à effectuer pour résoudre le taquin
@@ -173,8 +179,10 @@ $(document).ready(function () {
         console.log("Profondeur max pour la résolution : " + max_depth);
         searchDFS(tableauJeu, 0, connus, moves);
         //Afficher la solution dans la div
-        $(".titreSolution").show();
-        $(".solution").html(moves.join(" - ")).show();
+        if (moves.length > 0) {
+            $(".titreSolution").show();
+            $(".solution").html(moves.join(" - ")).show();
+        }
     })
 
     // $(".deplacer").click(function () {
