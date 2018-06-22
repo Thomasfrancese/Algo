@@ -75,6 +75,7 @@ let best_moves = [];
 let best_depth = max_depth;
 
 
+
 $(document).ready(function () {
 
     //Lorsque l'on click sur le bouton newgame générer une nouvelle partie
@@ -173,6 +174,10 @@ $(document).ready(function () {
         searchDFS(tableauJeu, 0, connus, moves);
     })
 
+    $(".deplacer").click(function () {
+        let test = ["Up", "Down", "Left", "Right", "Right"];
+        deplacerCaseVide(board, "caseChiffre", test);
+    })
 })
 
 
@@ -688,4 +693,34 @@ function creerSimpleTableau (tableau2d){
         }
     }
     return resultat;
+}
+
+//Fonction permettant de bouger la case vide visuellement avec une autre
+function deplacerCaseVide(board, typeCase, moves){
+    // //Récupérer l'id de la div où se trouve la case vide
+    // let indexCaseVide = board.findIndex(i => i.value === 'V') + 1;
+    // // $("#" + (indexCaseVide-4)).fadeTo(1000, 0);
+    //Avoir un tableau 2D
+    let tableauJeu = modifyData(board);
+    for (let i = 0; i < moves.length; i++ ){
+        if (moves[i] == "Up"){
+            tableauJeu = up(tableauJeu);
+        }
+        else if (moves[i] == "Down"){
+            tableauJeu = down(tableauJeu);
+        }
+        else if (moves[i] == "Right"){
+            tableauJeu = right(tableauJeu);
+        }
+        else if (moves[i] == "Left"){
+            tableauJeu = left(tableauJeu);
+        }
+
+        //Transformer en board (tableau d'objets)
+        board = creerTableauObjets(tableauJeu, board);
+        //Mettre à jour les valeurs
+        updateValues(board, "caseChiffre").setTimeout(1000);
+
+    }
+
 }
