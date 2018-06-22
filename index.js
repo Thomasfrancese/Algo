@@ -57,10 +57,25 @@ let boardGagnant = [
     {x: 3, y: 2, value: 15, id: 15},
     {x: 3, y: 3, value: "V", id: 16}
 ];
-
+//Type de case : chiffre ou image
 let typeCase;
-
 let tableauGagnant = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,"V"]];
+//correspond au plateau de jeu sous forme d'un tableau 2 dimensions (utile pour le DFS)
+let tableauJeu = [];
+//Déterminer le nombre de mouvements
+let nbMouv = 23;
+
+//Profondeur maximum (nb de permutations)
+let max_depth = 0;
+//Tableau contenant les déplacements à effectuer
+let moves = [];
+//Tableau contenant la meilleure solution pour résoudre le taquin
+let best_moves = [];
+//Nb minimum de mouvements
+let best_depth = max_depth;
+
+//Contient les états connus
+let connus = [1];
 
 $(document).ready(function () {
 
@@ -68,41 +83,64 @@ $(document).ready(function () {
     $(".newgameChiffres").click(function () {
         //Afficher le plateau de jeu
         deleteTable();
+        //-------------------- ANCIENNE VERSION ----------------------
         //Générer un tableau de valeurs aléatoires
-        tableauAlea = generateTableValue();
+        // tableauAlea = generateTableValue();
         //Créer le plateau de jeu grâce au tableau de valeurs aléatoires
-        board = createBoard(tableauAlea, board);
+        // board = createBoard(tableauAlea, board);
+
+        // -------------------- NOUVELLE VERSION -----------------
+        //Générer un tableau de mouvements obligatoires
+        let tabMouv = tableauDeMouvements(nbMouv);
+        console.log("Tableau de mouvements obligatoires : " + tabMouv);
+        //Créer un tableau de jeu 2 dimensions avec les mouvements aléatoires
+        tableauJeu = creerTableauJeu(tabMouv, tableauGagnant);
+        //Créer sous forme d'un tableau d'objets le plateau de jeu
+        board = creerTableauObjets(tableauJeu, board);
+
+        // -------------------- PARTIE COMMUNE -----------------
         //Sauvegarder le board dans son état initial
-        boardInitial = createBoard(tableauAlea, boardInitial);
+        boardInitial = $.extend(true, [], board);
         //Afficher le plateau de jeu vide
         typeCase = "caseChiffre";
         generateCadre(board, typeCase);
         //Mettre les valeurs dans le plateau de jeu
         updateValues(board, typeCase);
         //Définir si le plateau de jeu généré (sous forme de tableau simple) est soluble ou pas : renvoi true of false
+        tableauAlea = creerSimpleTableau(tableauJeu); //A AJOUTER QUE POUR LA NOUVELLE VERSION
         soluble = solubleOrNot(tableauAlea);
+        //Afficher un message si c'est soluble or not
         narguer(soluble);
-
-        //Créer un tableau 2 dimensions :
-        console.log(modifyData(boardInitial));
-
     })
 
     $(".newgameImage").click(function () {
         //Afficher le plateau de jeu
         deleteTable();
-        //Générer un tableau de valeurs aléatoires
-        tableauAlea = generateTableValue();
-        //Créer le plateau de jeu grâce au tableau de valeurs aléatoires
-        board = createBoard(tableauAlea, board);
+        //-------------------- ANCIENNE VERSION ----------------------
+        // //Générer un tableau de valeurs aléatoires
+        // tableauAlea = generateTableValue();
+        // //Créer le plateau de jeu grâce au tableau de valeurs aléatoires
+        // board = createBoard(tableauAlea, board);
+
+        //-------------------- NOUVELLE VERSION ----------------------
+        //Générer un tableau de mouvements obligatoires
+        let tabMouv = tableauDeMouvements(nbMouv);
+        console.log("Tableau de mouvements obligatoires + " + tabMouv);
+        //Créer un tableau de jeu 2 dimensions avec les mouvements aléatoires
+        tableauJeu = creerTableauJeu(tabMouv, tableauGagnant);
+        //Créer sous forme d'un tableau d'objets le plateau de jeu
+        board = creerTableauObjets(tableauJeu, board);
+
+        //-------------------- PARTIE COMMUNE ----------------------
         //Sauvegarder le board dans son état initial
-        boardInitial = createBoard(tableauAlea, boardInitial);
+        boardInitial = $.extend(true, [], board);
         //Afficher le plateau de jeu vide
         typeCase = "";
         generateCadre(board, typeCase);
         //Mettre les valeurs dans le plateau de jeu
         updateValues(board, typeCase);
         //Définir si le plateau de jeu généré (sous forme de tableau simple) est soluble ou pas : renvoi true of false
+        tableauAlea = creerSimpleTableau(tableauJeu); //A AJOUTER QUE POUR LA NOUVELLE VERSION
         soluble = solubleOrNot(tableauAlea);
         narguer(soluble);
     })
@@ -128,21 +166,10 @@ $(document).ready(function () {
     })
 
     $(".resolution").click(function () {
-
-        let test = [
-            [3,2,"V",6],
-            [13,12,4,1],
-            [15,8,9,7],
-            [5,14,11,10]
-        ];
-
-        let gagne = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,'V']];
-        //Modifier le tableau d'objets en un tableau 2 dimensions
-        let tableauTaquin = modifyData(boardInitial);
         //Résoudre le taquin
-        searchDFS(test, 0);
+        console.log("Profondeur max pour la résolution : " + max_depth);
+        searchDFS(tableauJeu, 0, connus);
     })
-
 
 })
 
@@ -334,10 +361,8 @@ function moveCase(board, typeCase){
             if(clickedY == videY-1 || clickedY == videY + 1){
                 //Stocker la valeur de la case cliquée
                 let valueClickedCase = board[divIdClicked-1].value;
-
                 //Récupérer la position de la case vide dans le tableau "board"
                 let indexCaseVide = board.findIndex(i => i.value === 'V');
-
                 //Attribuer à la case cliquée la valeur "vide"
                 board[divIdClicked-1].value = "V";
                 //Appliquer à la case vide la valeur de la case cliquée
@@ -349,10 +374,8 @@ function moveCase(board, typeCase){
             if (clickedX == videX - 1 || clickedX == videX + 1) {
                 //Stocker la valeur de la case cliquée
                 let valueClickedCase = board[divIdClicked - 1].value;
-
                 //Récupérer la position de la case vide dans le tableau "board"
                 let indexCaseVide = board.findIndex(i => i.value === 'V');
-
                 //Attribuer à la case cliquée la valeur "vide"
                 board[divIdClicked - 1].value = "V";
                 //Appliquer à la case vide la valeur de la case cliquée
@@ -410,15 +433,6 @@ function narguer(condition){
     $("#solubleOrNot").html(resultat);
 }
 
-//Profondeur maximum (nb de permutations)
-let max_depth = 96;
-//Tableau contenant les déplacements à effectuer
-let moves = [];
-//Tableau contenant la meilleure solution pour résoudre le taquin
-let best_moves = [];
-//Nb minimum de mouvements
-let best_depth = max_depth;
-
 //Fonction permettant de transformer en un tableau 2 dimensions, le plateau de jeu format tableau d'objets
 function modifyData(board){
     let resultat = [[],[],[], []];
@@ -444,7 +458,7 @@ function findCoordVide(tableauJeu){
     }
 }
 
-//Fonction permettant de déterminer si le tableau de jeu est le même que le gagnant
+//Fonction permettant de déterminer si le tableau de jeu est le même que le gagnant (tableau 2 dimensions)
 function isCorrect(tableauJeu){
     for (let i=0; i < tableauJeu.length; i++ ){
         for (let j=0; j < tableauJeu[i].length; j++){
@@ -540,7 +554,12 @@ function right(tableauJeu){
     }
 }
 
-function searchDFS(jeu, depth){
+//Fonction de résolution automatique DFS
+function searchDFS(jeu, depth, connus){
+    //Ajouter l'état actuel sous forme de string dans le tableau des connus
+    let etat = jeu.toString();
+    connus.push(etat);
+
     //Vérifier la profondeur max
     if (depth > max_depth){
         return false;
@@ -552,37 +571,119 @@ function searchDFS(jeu, depth){
         console.log(moves);
         return true;
     }
-    //Monter la case vide
+    //Monter la case vide en vérifiant si c'est possible et si l'état généré n'est pas déjà connu
     let jeuHaut = up(jeu);
-    if (jeuHaut){
-        if (searchDFS(jeuHaut, depth+1)){
+    if (jeuHaut && (connus.indexOf(jeuHaut.toString()) == -1) ){
+        if (searchDFS(jeuHaut, depth+1, connus)){
+            //Enregistrer le mouvement effectué
             moves[depth] = "Up";
             return true;
         }
     }
-    //Descendre la case vide
-    let jeuBas = down(jeu);
-    if (jeuBas){
-        if (searchDFS(jeuBas, depth+1)){
-            moves[depth] = "Down";
-            return true;
-        }
-    }
-    //Décaler à gauche la case vide
+    //Décaler à gauche la case vide en vérifiant si c'est possible et si l'état généré n'est pas déjà connu
     let jeuG = left(jeu);
-    if (jeuG){
-        if (searchDFS(jeuG, depth+1)){
+    if (jeuG && (connus.indexOf(jeuG.toString()) == -1) ){
+        if (searchDFS(jeuG, depth+1, connus)){
             moves[depth] = "Left";
             return true;
         }
     }
-    //Décaler à droite la case vide
+    //Descendre la case vide en vérifiant si c'est possible et si l'état généré n'est pas déjà connu
+    let jeuBas = down(jeu);
+    if (jeuBas && (connus.indexOf(jeuBas.toString()) == -1) ){
+        if (searchDFS(jeuBas, depth+1, connus)){
+            moves[depth] = "Down";
+            return true;
+        }
+    }
+    //Décaler à droite la case vide en vérifiant si c'est possible et si l'état généré n'est pas déjà connu
     let jeuD = right(jeu);
-    if (jeuD){
-        if (searchDFS(jeuD, depth+1)){
+    if (jeuD && (connus.indexOf(jeuD.toString()) == -1) ){
+        if (searchDFS(jeuD, depth+1, connus)){
             moves[depth] = "Right";
             return true;
         }
     }
 
+}
+
+//Génerer un tableau de mouvements aléatoires
+function tableauDeMouvements(nbMouv){
+   let tab = ["U", "D", "L", "R"];
+   let resultat = [];
+   while(resultat.length < nbMouv) {
+       //Générer un nombre aléatoire correspondant à un index du tableau
+       let min = Math.ceil(0);
+       let max = Math.floor((tab.length - 1));
+       let alea = Math.floor(Math.random() * (max - min +1)) + min;
+       //Récupérer la valeur dont l'index a été tiré au sort
+       let value = tab[alea];
+       //Ajouter la valeur (dont l'index a été sélectionné) dans le tableau de résultat final
+       resultat.push(value);
+   }
+   return resultat;
+}
+
+//A partir d'un tableau de mouvements aléatoire et du tableau gagnant, générer un tableau mélangé
+function creerTableauJeu(tabMouv, tabGagnant){
+    //Créer le tableau de résultat identique à l'état gagnant
+    let resultat = copyTable(tabGagnant);
+
+    //Réinitialiser le max_depth : max_depth compte le nb de mouvements réellement effectués et ce nb correspondra à la profondeur max pour la résolution
+    max_depth = 0;
+    for (let i = 0; i < tabMouv.length; i++) {
+        if (tabMouv[i] == "U") {
+            if (up(resultat)) {
+                resultat = up(resultat);
+                max_depth++;
+            }
+        }
+        if (tabMouv[i] == "D") {
+            if (down(resultat)) {
+                resultat = down(resultat);
+                max_depth++;
+            }
+        }
+        if (tabMouv[i] == "L") {
+            if (left(resultat)) {
+                resultat = left(resultat);
+                max_depth++;
+            }
+        }
+        if (tabMouv[i] == "R") {
+            if (right(resultat)) {
+                resultat = right(resultat);
+                max_depth++;
+            }
+        }
+    }
+    console.log(max_depth + " mouvements possibles effectués pour mélanger le taquin");
+
+    return resultat;
+}
+
+//Créer un tableau de jeu au format "tableau d'objets" à partir d'un tableau 2 dimensions
+function creerTableauObjets(tableau2d, board){
+    //Compter le nombres d'itérations - correspond à l'index de board
+    let count = 0;
+    for (let i = 0; i < tableau2d.length; i++){
+        for (let j = 0; j < tableau2d[i].length; j++){
+            board[count].x = i;
+            board[count].y = j;
+            board[count].value = tableau2d[i][j];
+            count++;
+        }
+    }
+    return board
+}
+
+//Créer un tableau simple à partir d'un tableau 2 dimensions
+function creerSimpleTableau (tableau2d){
+    let resultat = [];
+    for (let i = 0; i < tableau2d.length; i++) {
+        for (let j = 0; j < tableau2d[i].length; j++) {
+            resultat.push(tableau2d[i][j]);
+        }
+    }
+    return resultat;
 }
