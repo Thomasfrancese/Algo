@@ -68,14 +68,12 @@ let nbMouv = 23;
 //Profondeur maximum (nb de permutations)
 let max_depth = 0;
 //Tableau contenant les déplacements à effectuer
-let moves = [];
+// let moves = [];
 //Tableau contenant la meilleure solution pour résoudre le taquin
 let best_moves = [];
 //Nb minimum de mouvements
 let best_depth = max_depth;
 
-//Contient les états connus
-let connus = [1];
 
 $(document).ready(function () {
 
@@ -166,9 +164,13 @@ $(document).ready(function () {
     })
 
     $(".resolution").click(function () {
+        //Tableau regroupant les états connus lors de la résolution
+        let connus = [];
+        //Tableau contenant les mouvements à effectuer pour résoudre le taquin
+        let moves = [];
         //Résoudre le taquin
         console.log("Profondeur max pour la résolution : " + max_depth);
-        searchDFS(tableauJeu, 0, connus);
+        searchDFS(tableauJeu, 0, connus, moves);
     })
 
 })
@@ -555,7 +557,7 @@ function right(tableauJeu){
 }
 
 //Fonction de résolution automatique DFS
-function searchDFS(jeu, depth, connus){
+function searchDFS(jeu, depth, connus, moves){
     //Ajouter l'état actuel sous forme de string dans le tableau des connus
     let etat = jeu.toString();
     connus.push(etat);
@@ -574,7 +576,7 @@ function searchDFS(jeu, depth, connus){
     //Monter la case vide en vérifiant si c'est possible et si l'état généré n'est pas déjà connu
     let jeuHaut = up(jeu);
     if (jeuHaut && (connus.indexOf(jeuHaut.toString()) == -1) ){
-        if (searchDFS(jeuHaut, depth+1, connus)){
+        if (searchDFS(jeuHaut, depth+1, connus, moves)){
             //Enregistrer le mouvement effectué
             moves[depth] = "Up";
             return true;
@@ -583,7 +585,7 @@ function searchDFS(jeu, depth, connus){
     //Décaler à gauche la case vide en vérifiant si c'est possible et si l'état généré n'est pas déjà connu
     let jeuG = left(jeu);
     if (jeuG && (connus.indexOf(jeuG.toString()) == -1) ){
-        if (searchDFS(jeuG, depth+1, connus)){
+        if (searchDFS(jeuG, depth+1, connus, moves)){
             moves[depth] = "Left";
             return true;
         }
@@ -591,7 +593,7 @@ function searchDFS(jeu, depth, connus){
     //Descendre la case vide en vérifiant si c'est possible et si l'état généré n'est pas déjà connu
     let jeuBas = down(jeu);
     if (jeuBas && (connus.indexOf(jeuBas.toString()) == -1) ){
-        if (searchDFS(jeuBas, depth+1, connus)){
+        if (searchDFS(jeuBas, depth+1, connus, moves)){
             moves[depth] = "Down";
             return true;
         }
@@ -599,7 +601,7 @@ function searchDFS(jeu, depth, connus){
     //Décaler à droite la case vide en vérifiant si c'est possible et si l'état généré n'est pas déjà connu
     let jeuD = right(jeu);
     if (jeuD && (connus.indexOf(jeuD.toString()) == -1) ){
-        if (searchDFS(jeuD, depth+1, connus)){
+        if (searchDFS(jeuD, depth+1, connus, moves)){
             moves[depth] = "Right";
             return true;
         }
