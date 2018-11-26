@@ -177,12 +177,13 @@ $(document).ready(function () {
         let moves = [];
         //Résoudre le taquin
         console.log("Profondeur max pour la résolution : " + max_depth);
-        searchDFS(tableauJeu, 0, connus, moves);
-        //Afficher la solution dans la div
-        if (moves.length > 0) {
+        if (searchDFS(tableauJeu, 0, connus, moves)){
             $(".titreSolution").show();
             $(".solution").html(moves.join(" - ")).show();
-        }
+        }else{
+            alert("Non, pas envie de donner la solution .. tu peux le faire sans moi");
+        };
+
     })
 
     // $(".deplacer").click(function () {
@@ -584,7 +585,7 @@ function searchDFS(jeu, depth, connus, moves){
     }
     //Vérifier si le tableau est gagnant
     if (isCorrect(jeu)){
-        alert("terminé");
+        alert("Tu as de la chance ! Je te donne la solution");
         console.log("solution trouvée en " + depth + " déplacements");
         console.log(moves);
         return true;
@@ -730,7 +731,9 @@ function deplacerCaseVide(board, typeCase, moves){
         //Transformer en board (tableau d'objets)
         board = creerTableauObjets(tableauJeu, board);
         //Mettre à jour les valeurs
-        updateValues(board, "caseChiffre");
+        let toto = updateValues(board, "caseChiffre");
+        let tps = 2000 * i;
+        setTimeout(toto, tps);
 
     }
 
